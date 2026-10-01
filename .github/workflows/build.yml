@@ -1,0 +1,23 @@
+name: build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nasm qemu-system-x86 g++-multilib grub-pc-bin grub-common xorriso mtools
+      - name: Build kernel
+        run: make
+      - name: Boot smoke test (headless QEMU)
+        run: make test
+      - name: Build ISO
+        run: make iso
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tinyos-iso
+          path: build/tinyos.iso
